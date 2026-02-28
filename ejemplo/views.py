@@ -4,7 +4,7 @@ from django.http import HttpResponse
 # Create your views here.
 class Class_Ejemplo(APIView):
     def get(self, request):
-        return HttpResponse("metodo GET")
+        return HttpResponse(f"metodo GET | id={request.GET.get('id', None)} | slug={request.GET.get("slug")}")
     
     def post(self, request):
         return HttpResponse("metodo post")
