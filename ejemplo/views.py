@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from django.http import HttpResponse, JsonResponse, Http404
 from rest_framework.response import Response
+from http import HTTPStatus
 
 # Create your views here.
 class Class_Ejemplo(APIView):
@@ -9,18 +10,18 @@ class Class_Ejemplo(APIView):
        return JsonResponse({
             "estado": "ok",
             "mensaje": f"metodo GET | id={request.GET.get('id', None)} | slug={request.GET.get('slug')}"
-        })
+        }, status=HTTPStatus.ok)
     
     def post(self, request):
         if request.data.get("correo") == None or request.data.get("password") == None:
             raise Http404
-        return JsonResponse({ "estado": "ok", "mensaje": f"metodo POST | correo={request.data.get('correo')} | password={request.data.get("password")}"})
+        return JsonResponse({ "estado": "ok", "mensaje": f"metodo POST | correo={request.data.get('correo')} | password={request.data.get("password")}"},status=HTTPStatus.CREATED)
     
 
 
 class Class_EjemploParamentros(APIView):
     def get(self, request, id):
-       return JsonResponse({"mensaje": f"metodo GET | parametros={id}"})
+       return JsonResponse({"mensaje": f"metodo GET | parametros={id}"},stauts=HTTPStatus.FOUND)
     
 
     def put(self, request, id):
