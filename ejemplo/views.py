@@ -2,6 +2,9 @@ from rest_framework.views import APIView
 from django.http import HttpResponse, JsonResponse, Http404
 from rest_framework.response import Response
 from http import HTTPStatus
+from django.core.files.storage import FileSystemStorage
+import os
+from datetime import datetime
 
 # Create your views here.
 class Class_Ejemplo(APIView):
@@ -29,3 +32,22 @@ class Class_EjemploParamentros(APIView):
 
     def delete(self, request, id):
        return JsonResponse({"mensaje": f"metodo DELETE | parametros={id}"})
+    
+
+class Class_EjemploUpload(APIView):
+
+    def post(self, request):
+        fs = FileSystemStorage()
+
+        archivo = request.FILES["file"]
+        fecha = datetime.now()
+        foto = f"{datetime.timestamp(fecha)}{os.path.splitext(str(request.FILES['file']))[1]}"
+
+        nombre = fs.save(f"ejemplo/{foto}", archivo)
+        url = fs.url(nombre)
+
+        return JsonResponse({
+            "estado": "ok",
+            "mensaje": "se subió el archivo",
+            "url": url
+        })
