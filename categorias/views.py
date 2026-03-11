@@ -20,6 +20,8 @@ class Clase1(APIView):
     
 
     def post(self, request):
+        if request.data.get("nombre")== None or not request.data["nombre"]:
+            return JsonResponse({"estado": "error", "mensaje": "El campo nombre es obligatorio"}, status= HTTPStatus.BAD_REQUEST)
         try:
             Categoria.objects.create(nombre=request.data['nombre'])
             return JsonResponse({"estado":"ok", "mensaje": "Se crea el registro exitosamente"}, status= HTTPStatus.CREATED)
