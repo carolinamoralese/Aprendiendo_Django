@@ -17,3 +17,13 @@ class Clase1(APIView):
         return JsonResponse({"data": datos_json.data},status=HTTPStatus.OK)
         
 
+class Clase2(APIView):
+
+
+    def get(self, request, id):
+        #select * from categorias where id = 4
+        try:
+            data= Categoria.objects.filter(pk=id).get()
+            return JsonResponse({"data": {"id": data.id, "nombre":data.nombre, "slug": data.slug}}, status=HTTPStatus.OK)
+        except Categoria.DoesNotExist:
+            raise Http404
