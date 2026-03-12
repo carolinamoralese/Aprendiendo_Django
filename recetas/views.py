@@ -18,7 +18,14 @@ class Clase1(APIView):
         data = Receta.objects.order_by('-id').all() #nombre del modelo.objects.order_by('-id')
         datos_json = RecetaSerializer(data, many=True)
         return JsonResponse({"data": datos_json.data},status=HTTPStatus.OK)
+
     
+    def post(self, request):
+        try:
+            Receta.objects.create(nombre=request.data["nombre"], tiempo=request.data["tiempo"], descripcion=request.data["descripcion"], categoria_id = request.data['categoria'])
+            return JsonResponse({"data": "ok", "mensaje":"se crea el registro existosamente"},status=HTTPStatus.CREATED)
+        except Exception as e:
+            raise Http404
 
 class Clase2(APIView):
 
