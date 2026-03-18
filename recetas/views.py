@@ -33,6 +33,14 @@ class Clase1(APIView):
         if not request.data.get('categoria'):
             return JsonResponse({"estado":"error", "mensaje":"El campo categoria es obligatorio"}, status=HTTPStatus.BAD_REQUEST)
         
+        #validamos que no exista la categoria id
+        try:
+            categoria = Categoria.objects.get(pk=request.data.get("categoria"))
+        except Categoria.DoesNotExist:
+            return JsonResponse(
+                {"estado": "error", "mensaje": "La categoria no existe en la base de datos"},
+                status=HTTPStatus.BAD_REQUEST)
+        
         #validamos que el nombre no este duplicado
         if Receta.objects.filter(nombre=request.data.get("nombre")).exists():
             return JsonResponse({"estado":"error", "mensaje":f"El nombre {request.data["nombre"]} se encuentra creado ya"}, status=HTTPStatus.BAD_REQUEST)
