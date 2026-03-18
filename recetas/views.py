@@ -6,8 +6,10 @@ from django.utils.text import slugify
 from .serializers import *
 from .models import *
 from django.utils.dateformat import DateFormat
+from django.core.files.storage import FileSystemStorage
 from dotenv import load_dotenv
 import os
+from datetime import datetime
 
 
 # Create your views here.
@@ -45,12 +47,28 @@ class Clase1(APIView):
         if Receta.objects.filter(nombre=request.data.get("nombre")).exists():
             return JsonResponse({"estado":"error", "mensaje":f"El nombre {request.data["nombre"]} se encuentra creado ya"}, status=HTTPStatus.BAD_REQUEST)
 
+        fs = FileSystemStorage()
+        try:
+            fecha = datetime.now()
+            foto = f"{datetime.timestamp(fecha)}{os.path.splitext(str(request.FILES['foto']))[1]}"
+        except Exception as e:
+             return JsonResponse({"estado":"error", "mensaje":f"Debe adjuntar una foto para la receta"}, status=HTTPStatus.BAD_REQUEST)
+        
+        try:
+            archivo = request.FILES["foto"]
+            foto = f"{datetime.timestamp(fecha)}{os.path.splitext(str(request.FILES['foto']))[1]}"
+            nombre = fs.save(f"recetas/{foto}", archivo)
+            url = fs.url(nombre)
+        except Exception as e:
+             return JsonResponse({"estado":"error", "mensaje":f"Se produjo un error al intentar subir el archivo"}, status=HTTPStatus.BAD_REQUEST)
+
         try:
             Receta.objects.create(
                 nombre=request.data["nombre"],
                 tiempo=request.data["tiempo"],
                 descripcion=request.data["descripcion"],
-                categoria_id=request.data["categoria"]
+                categoria_id=request.data["categoria"],
+                foto=foto
             )
             return JsonResponse({"data": "ok", "mensaje":"se crea el registro exitosamente"}, status=HTTPStatus.CREATED)
 
