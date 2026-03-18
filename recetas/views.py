@@ -21,11 +21,29 @@ class Clase1(APIView):
 
     
     def post(self, request):
+        if not request.data.get('nombre'):
+            return JsonResponse({"estado":"error", "mensaje":"El campo nombre es obligatorio"}, status=HTTPStatus.BAD_REQUEST)
+
+        if not request.data.get('tiempo'):
+            return JsonResponse({"estado":"error", "mensaje":"El campo tiempo es obligatorio"}, status=HTTPStatus.BAD_REQUEST)
+
+        if not request.data.get('descripcion'):
+            return JsonResponse({"estado":"error", "mensaje":"El campo descripcion es obligatorio"}, status=HTTPStatus.BAD_REQUEST)
+
+        if not request.data.get('categoria'):
+            return JsonResponse({"estado":"error", "mensaje":"El campo categoria es obligatorio"}, status=HTTPStatus.BAD_REQUEST)
+
         try:
-            Receta.objects.create(nombre=request.data["nombre"], tiempo=request.data["tiempo"], descripcion=request.data["descripcion"], categoria_id = request.data['categoria'])
-            return JsonResponse({"data": "ok", "mensaje":"se crea el registro existosamente"},status=HTTPStatus.CREATED)
+            Receta.objects.create(
+                nombre=request.data["nombre"],
+                tiempo=request.data["tiempo"],
+                descripcion=request.data["descripcion"],
+                categoria_id=request.data["categoria"]
+            )
+            return JsonResponse({"data": "ok", "mensaje":"se crea el registro exitosamente"}, status=HTTPStatus.CREATED)
+
         except Exception as e:
-            raise Http404
+            return JsonResponse({"estado":"error", "mensaje": str(e)}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
 class Clase2(APIView):
 
