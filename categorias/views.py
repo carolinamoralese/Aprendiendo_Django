@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from .models import *
+from .models import Categoria
 from django.http.response import HttpResponse, JsonResponse, Http404
 from rest_framework.response import Response
 from .serializers import *
 from http import HTTPStatus
 from django.utils.text import slugify
+from recetas.models import *
 
 # Create your views here.
 class Clase1(APIView):
@@ -47,7 +48,7 @@ class Clase2(APIView):
         try:
             data = Categoria.objects.filter(pk=id).get()
             Categoria.objects.filter(pk=id).update(nombre=request.data.get("nombre"), slug=slugify(request.data.get("nombre")))
-            return JsonResponse({"estado":"ok", "mensaje": "Se modifica el registro exitosamente"}, status= HTTPStatus.ok)
+            return JsonResponse({"estado":"ok", "mensaje": "Se modifica el registro exitosamente"}, status= HTTPStatus.OK)
         except Categoria.DoesNotExist:
             raise Http404
         
@@ -55,7 +56,12 @@ class Clase2(APIView):
     def delete(self, request, id):
         try:
             data = Categoria.objects.filter(pk=id).get()
-            Categoria.objects.filter(pk=id).delete()
-            return JsonResponse({"estado":"ok", "mensaje": "Se elimina el registro exitosamente"}, status= HTTPStatus.ok)
+           
         except Categoria.DoesNotExist:
             raise Http404
+        
+        if Receta.objects.filter(categoria_id=id).exists():
+            return JsonResponse({"estado":"error", "mensaje": "La categoria tiene productos asociados no se puede eliminar la categoria"}, status= HTTPStatus.BAD_REQUEST)
+        
+        Categoria.objects.filter(pk=id).delete()
+        return JsonResponse({"estado":"ok", "mensaje": "Se elimina el registro exitosamente"}, status= HTTPStatus.OK)
