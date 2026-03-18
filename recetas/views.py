@@ -123,3 +123,20 @@ class Clase2(APIView):
             return JsonResponse({"estado": "ok", "mensaje":"Se modifica el registro existoxamente"}, status=HTTPStatus.OK)
         except Exception as e:
              return JsonResponse({"estado": "error", "mensaje":"Ocurrio un error inesperado"}, status=HTTPStatus.NOT_FOUND)
+        
+
+    def delete(self, request, id):
+        try:
+            data = Receta.objects.get(pk=id)
+        except Receta.DoesNotExist:
+            return JsonResponse({"estado": "error", "mensaje":"Recurso no disponible"}, status=HTTPStatus.NOT_FOUND)
+
+        # eliminar imagen si existe
+        ruta = f"./uploads/recetas/{data.foto}"
+        if os.path.exists(ruta):
+            os.remove(ruta)
+
+        # eliminar registro
+        data.delete()
+
+        return JsonResponse({"estado": "ok", "mensaje":"Receta eliminada"}, status=HTTPStatus.OK)
