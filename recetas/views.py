@@ -54,26 +54,29 @@ class Clase1(APIView):
         except Exception as e:
              return JsonResponse({"estado":"error", "mensaje":f"Debe adjuntar una foto para la receta"}, status=HTTPStatus.BAD_REQUEST)
         
-        try:
-            archivo = request.FILES["foto"]
-            foto = f"{datetime.timestamp(fecha)}{os.path.splitext(str(request.FILES['foto']))[1]}"
-            nombre = fs.save(f"recetas/{foto}", archivo)
-            url = fs.url(nombre)
-        except Exception as e:
-             return JsonResponse({"estado":"error", "mensaje":f"Se produjo un error al intentar subir el archivo"}, status=HTTPStatus.BAD_REQUEST)
+        if request.FILES["foto"].content_type=="image/jpeg" or request.FILES["foto"].content_type=="image/png":
+            try:
+                archivo = request.FILES["foto"]
+                foto = f"{datetime.timestamp(fecha)}{os.path.splitext(str(request.FILES['foto']))[1]}"
+                nombre = fs.save(f"recetas/{foto}", archivo)
+                url = fs.url(nombre)
+            except Exception as e:
+                return JsonResponse({"estado":"error", "mensaje":f"Se produjo un error al intentar subir el archivo"}, status=HTTPStatus.BAD_REQUEST)
 
-        try:
-            Receta.objects.create(
-                nombre=request.data["nombre"],
-                tiempo=request.data["tiempo"],
-                descripcion=request.data["descripcion"],
-                categoria_id=request.data["categoria"],
-                foto=foto
-            )
-            return JsonResponse({"data": "ok", "mensaje":"se crea el registro exitosamente"}, status=HTTPStatus.CREATED)
+            try:
+                Receta.objects.create(
+                    nombre=request.data["nombre"],
+                    tiempo=request.data["tiempo"],
+                    descripcion=request.data["descripcion"],
+                    categoria_id=request.data["categoria"],
+                    foto=foto
+                )
+                return JsonResponse({"data": "ok", "mensaje":"se crea el registro exitosamente"}, status=HTTPStatus.CREATED)
 
-        except Exception as e:
-            return JsonResponse({"estado":"error", "mensaje": str(e)}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+            except Exception as e:
+                return JsonResponse({"estado":"error", "mensaje": str(e)}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+            
+        return JsonResponse({"estado" : "error", "mensaje": "El formato debe ser jpeg o png"})
 
 class Clase2(APIView):
 
