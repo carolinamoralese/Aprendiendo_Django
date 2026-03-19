@@ -2,6 +2,9 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from django.http.response import HttpResponse, JsonResponse, Http404
 from http import HTTPStatus
+from .models import Contacto
+from datetime import datetime
+
 
 # Create your views here.
 
@@ -16,3 +19,10 @@ class Clase1(APIView):
             return JsonResponse({"estado": "error", "mensaje": "El campo mensaje es obligatorio"}, status= HTTPStatus.BAD_REQUEST)
         if request.data.get("telefono")== None or not request.data["telefono"]:
             return JsonResponse({"estado": "error", "mensaje": "El campo telefono es obligatorio"}, status= HTTPStatus.BAD_REQUEST)
+        
+        try:
+            Contacto.objects.create(nombre=request.data["nombre"], correo=request.data["correo"], telefono=request.data["telefono"], mensaje=request.data["mensaje"], fecha=datetime.now())
+        except Exception as e:
+            return JsonResponse({"estado": "error", "mensaje": "Ocurrios un error inesperado"}, status=HTTPStatus.BAD_REQUEST)
+        
+        return JsonResponse({"estado": "ok", "mensaje": "Se crea registro exitosamente"}, status=HTTPStatus.OK)
