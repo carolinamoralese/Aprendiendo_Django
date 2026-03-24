@@ -52,7 +52,7 @@ class Clase2(APIView):
               return JsonResponse({"estado": "error", "mensaje": "recurso no disponoble"}, status=404)
         
         try:
-            data=UserMetaData.objects.filter(token=token).get()
+            data=UserMetaData.objects.filter(token=token).filter(user__is_active=0).get()
             
             UserMetaData.objects.filter(token=token).update(token="")
 
