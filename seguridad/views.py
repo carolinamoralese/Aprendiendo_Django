@@ -8,6 +8,11 @@ import uuid
 import os
 from dotenv import load_dotenv
 from utilidades import utilidades
+from django.contrib.auth import authenticate
+from jose import jwt
+from django.conf import settings
+from datetime import datetime, timedelta
+import time
 
 class Clase1(APIView):
     
@@ -61,3 +66,57 @@ class Clase2(APIView):
             return HttpResponseRedirect(os.getenv("BASE_URL_FRONTEND"))
         except UserMetaData.DoesNotExist:
             raise Http404
+        
+
+
+class Clase3(APIView):
+    def post(self, request):
+
+        username = request.data.get("username")
+        password = request.data.get("password")
+
+        if not username:
+            return JsonResponse({"estado": "error", "mensaje": "campo username obligatorio"}, status=400)
+
+        if not password:
+            return JsonResponse({"estado": "error", "mensaje": "campo password obligatorio"}, status=400)
+
+        auth = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if auth is not None:
+            fecha = datetime.now()
+            despues = fecha + timedelta(days=1)
+            fecha_numero = int(datetime.timestamp(despues))
+
+            payload = {
+                "id": auth.id,
+                "ISS": os.getenv("BASE_URL"),
+                "iat": int(time.time()),
+                "exp": fecha_numero
+            }
+
+            try:
+                token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS512')
+
+                return JsonResponse({
+                    "id": auth.id,
+                    "nombre": auth.first_name,
+                    "token": token
+                })
+
+            except Exception as e:
+                print(e)
+                return JsonResponse({
+                    "estado": "error",
+                    "mensaje": "ocurrio un error inesperado"
+                }, status=400)
+
+        else:
+            return JsonResponse({
+                "estado": "error",
+                "mensaje": "usuario y/o contraseña invalidas"
+            }, status=400)
