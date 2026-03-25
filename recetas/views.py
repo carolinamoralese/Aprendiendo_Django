@@ -10,6 +10,7 @@ from django.core.files.storage import FileSystemStorage
 from dotenv import load_dotenv
 import os
 from datetime import datetime
+from seguridad.decoratos import logueado
 
 
 # Create your views here.
@@ -22,6 +23,7 @@ class Clase1(APIView):
         return JsonResponse({"data": datos_json.data},status=HTTPStatus.OK)
 
     
+    @logueado()
     def post(self, request):
         if not request.data.get('nombre'):
             return JsonResponse({"estado":"error", "mensaje":"El campo nombre es obligatorio"}, status=HTTPStatus.BAD_REQUEST)
@@ -88,6 +90,7 @@ class Clase2(APIView):
         except Receta.DoesNotExist:
             return JsonResponse({"estado": "error", "mensaje":"Recurso no disponible"}, status=HTTPStatus.NOT_FOUND)
         
+     @logueado()
     def put(self, request, id):
         try:
             data = Receta.objects.filter(pk=id).get()
@@ -125,6 +128,7 @@ class Clase2(APIView):
              return JsonResponse({"estado": "error", "mensaje":"Ocurrio un error inesperado"}, status=HTTPStatus.NOT_FOUND)
         
 
+    @logueado()
     def delete(self, request, id):
         try:
             data = Receta.objects.get(pk=id)
